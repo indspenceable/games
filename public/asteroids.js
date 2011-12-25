@@ -4,15 +4,64 @@ $(function() {
     var updateInterval;
     // Draw the board.
     var drawInterval;
-    var ship = {
-      x: 50,
-      y: 50,
-      xVelocity: 0,
-      yVelocity: 0,
-      theta: 0,
-      readyToFire: true
+    function Bullet(ship) {
+      this.x = ship.x;
+      this.y = ship.y;
+      this.xVelocity = Math.sin(ship.theta);
+      this.yVelocity = Math.cos(ship.theta);
     }
-    var bullets = []
+    
+    var ship = new function() {
+      this.x = 50;
+      this.y = 50;
+      this.xVelocity = 0;
+      this.yVelocity = 0;
+      this.theta = 0;
+      this.readyToFire = true
+      
+      this.addVelocity = function(amt){
+        this.xVelocity += amt * Math.sin(this.theta)
+        this.yVelocity += amt * Math.cos(this.theta)
+      }
+      this.addFriction = function(coefficient) {
+        this.xVelocity *= coefficient;
+        this.yVelocity *= coefficient;
+      }
+    
+      this.screenWrap = function () {
+        if (this.x >= 500) {
+          this.x -= 500
+        }
+        if (this.y >= 500) {
+          this.y -= 500
+        }
+        if (this.x < 0) {
+          this.x += 500
+        }
+        if (this.y < 0) {
+          this.y += 500
+        }
+      }
+
+      this.bullets = [];
+      
+      this.fire = function() {
+        if (this.readyToFire) {
+
+          var bullet = new Bullet(this);
+          this.bullets.push(bullet);
+          this.readyToFire = false
+          
+          var $ship = this;
+          setTimeout(function() {
+            $ship.readyToFire = true
+          }, 200);
+          setTimeout(function() {
+            $ship.bullets.shift();
+           }, 500)
+        }
+      }
+    }
 
     // graphics manager
     var graphics = (function () {
@@ -26,8 +75,12 @@ $(function() {
         context.lineTo(ship.x + 10 * Math.sin(ship.theta),               ship.y + 10 * Math.cos(ship.theta));
         
         context.stroke();
+        for (var i = 0; i < ship.bullets.length; i ++) {
+          drawBullet(ship.bullets[i]);
+        }
       }
       function drawBullet(bullet) {
+        console.log('drawbullet');
         context.strokeStyle = "#339";
         context.moveTo(bullet.x + 1, bullet.y)
         context.lineTo(bullet.x, bullet.y + 1)
@@ -41,9 +94,7 @@ $(function() {
         canvas.width += 0;
         // Draw gamestate
         drawShip(ship);
-        for (var i = 0; i < bullets.length; i ++) {
-          drawBullet(bullets[i]);
-        }
+        
       };
       
       return {
@@ -102,47 +153,6 @@ $(function() {
          keys: keyStates
       }
     })();
-
-
-    // #TODO this should live in the ship obejct. needs to be a real class :(
-    function addVelocity(ship, amt) {
-      ship.xVelocity += amt * Math.sin(ship.theta)
-      ship.yVelocity += amt * Math.cos(ship.theta)
-    }
-    
-    function friction(ship, coefficient) {
-      ship.xVelocity *= coefficient;
-      ship.yVelocity *= coefficient;
-    }
-    
-    function screenWrap(ship) {
-      if (ship.x >= 500) {
-        ship.x -= 500
-      }
-      if (ship.y >= 500) {
-        ship.y -= 500
-      }
-      if (ship.x < 0) {
-        ship.x += 500
-      }
-      if (ship.y < 0) {
-        ship.y += 500
-      }
-    }
-    
-    function fire(ship) {
-      if (ship.readyToFire) {
-        // TODO make a bullet class, with a constructor that takes a ship.
-        bullets.push({x:ship.x, y:ship.y, xVelocity: Math.sin(ship.theta), yVelocity: Math.cos(ship.theta)})
-        ship.readyToFire = false;
-        setTimeout(function() {
-          ship.readyToFire = true
-        }, 200);
-        setTimeout(function() {
-          bullets.shift();
-        }, 500)
-      }
-    }
     
     function tick() {
       if (keyboard.keys.left) {
@@ -152,21 +162,21 @@ $(function() {
         ship.theta -= 0.1;
       }
       if (keyboard.keys.space) {
-        addVelocity(ship,0.15)
+        ship.addVelocity(0.15)
       }
       if (keyboard.keys.z) {
-        fire(ship);        
+        ship.fire();        
       }
       
       ship.x += ship.xVelocity
       ship.y += ship.yVelocity
       
-      screenWrap(ship)
-      friction(ship, 0.97);
+      ship.screenWrap()
+      ship.addFriction(0.97);
       
       
-      for (var i = 0; i < bullets.length; i ++) {
-        var bullet = bullets[i];
+      for (var i = 0; i < ship.bullets.length; i ++) {
+        var bullet = ship.bullets[i];
         bullet.x += bullet.xVelocity * 7;
         bullet.y += bullet.yVelocity * 7;
       }
