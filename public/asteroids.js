@@ -6,7 +6,7 @@ $(function() {
     var drawInterval;
     var ship;
 
-    var redrawCanvas = (function () {
+    var graphics = (function () {
       var canvas = document.getElementById("asteroids");
       var context = canvas.getContext("2d");
       function drawShip(ship) {
@@ -18,12 +18,16 @@ $(function() {
         
         context.stroke();
       }
-      return (function() {
+      function redraw () {
         // clear board
         canvas.width += 0;
         // Draw gamestate
         drawShip(ship);
-      });
+      };
+      
+      return {
+        redraw: redraw
+      }
     })();
     
     //Keyboard Manager
@@ -68,37 +72,50 @@ $(function() {
       }
     })();
 
-    function friction(ship, coefficient) {
-      ship.xVelocity *= coefficient;
-      ship.yVelocity *= coefficient;
-    }
 
     // #TODO this should live in the ship obejct. needs to be a real class :(
     function addVelocity(ship, amt) {
       ship.xVelocity += amt * Math.sin(ship.theta)
       ship.yVelocity += amt * Math.cos(ship.theta)
-      var magnitude = ship.xVelocity * ship.xVelocity +ship.yVelocity *ship.yVelocity 
-      if (magnitude > 1) {
-        ship.xVelocity /= magnitude;
-        ship.yVelocity /= magnitude;
+    }
+    
+    function friction(ship, coefficient) {
+      ship.xVelocity *= coefficient;
+      ship.yVelocity *= coefficient;
+    }
+    
+    function screenWrap(ship) {
+      if (ship.x >= 500) {
+        ship.x -= 500
+      }
+      if (ship.y >= 500) {
+        ship.y -= 500
+      }
+      if (ship.x < 0) {
+        ship.x += 500
+      }
+      if (ship.y < 0) {
+        ship.y += 500
       }
     }
     
     function tick() {
       if (keyboard.keys.left) {
-        ship.theta += 0.01;
+        ship.theta += 0.1;
       } 
       if (keyboard.keys.right) {
-        ship.theta -= 0.01;
+        ship.theta -= 0.1;
       }
       
       if (keyboard.keys.up) {
-        addVelocity(ship,0.1)
+        addVelocity(ship,0.3)
       }
       
       ship.x += ship.xVelocity
       ship.y += ship.yVelocity
-      friction(ship, 0.99);
+      
+      screenWrap(ship)
+      friction(ship, 0.98);
     }
   
     function init(selector) {
@@ -110,8 +127,8 @@ $(function() {
         theta: 0
       }
       
-      drawInterval = setInterval(redrawCanvas, 1);
-      updateInterval = setInterval(tick, 5);
+      drawInterval = setInterval(graphics.redraw, 10);
+      updateInterval = setInterval(tick, 10);
       $(selector).keydown(keyboard.keyDownListener);
       $(selector).keyup(keyboard.keyUpListener);
       
