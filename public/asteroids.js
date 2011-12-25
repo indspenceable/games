@@ -64,26 +64,49 @@ $(function() {
       return {
          keyDownListener: keyDownListener,
          keyUpListener: keyUpListener,
-        isPressed: keyStates
+         keys: keyStates
       }
     })();
-    
-    
+
+    function friction(ship, coefficient) {
+      ship.xVelocity *= coefficient;
+      ship.yVelocity *= coefficient;
+    }
+
+    // #TODO this should live in the ship obejct. needs to be a real class :(
+    function addVelocity(ship, amt) {
+      ship.xVelocity += amt * Math.sin(ship.theta)
+      ship.yVelocity += amt * Math.cos(ship.theta)
+      var magnitude = ship.xVelocity * ship.xVelocity +ship.yVelocity *ship.yVelocity 
+      if (magnitude > 1) {
+        ship.xVelocity /= magnitude;
+        ship.yVelocity /= magnitude;
+      }
+    }
     
     function tick() {
-      if (keyboard.isPressed.right) {
+      if (keyboard.keys.left) {
         ship.theta += 0.01;
       } 
-      if (keyboard.isPressed.left) {
+      if (keyboard.keys.right) {
         ship.theta -= 0.01;
       }
+      
+      if (keyboard.keys.up) {
+        addVelocity(ship,0.1)
+      }
+      
+      ship.x += ship.xVelocity
+      ship.y += ship.yVelocity
+      friction(ship, 0.99);
     }
   
     function init(selector) {
-      
       ship = {
         x: 50,
         y: 50,
+        xVelocity: 0,
+        yVelocity: 0,
         theta: 0
       }
       
