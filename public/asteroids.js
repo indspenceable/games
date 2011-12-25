@@ -6,6 +6,7 @@ $(function() {
     var drawInterval;
     var ship;
 
+    // graphics manager
     var graphics = (function () {
       var canvas = document.getElementById("asteroids");
       var context = canvas.getContext("2d");
@@ -34,6 +35,8 @@ $(function() {
     var keyboard = (function() {
       var keyStates = {}
       
+      
+      // TODO so ugly!
       function keyDownListener(e) {
         console.log("Got keydown");
         
@@ -45,6 +48,10 @@ $(function() {
           keyStates.up = true
         } else if (e.keyCode == 40) { // down
           keyStates.down = true
+        } else if (e.keyCode == 32) { // space
+          keyStates.space = true
+        } else if (e.keyCode == 90) { // z
+          keyStates.z = true
         } else {
           return true;
         }
@@ -59,6 +66,10 @@ $(function() {
           keyStates.up = false
         } else if (e.keyCode == 40) { // down
           keyStates.down = false
+        } else if (e.keyCode == 32) { // space
+          keyStates.space = false
+        } else if (e.keyCode == 90) { // z
+          keyStates.z = false
         } else {
           return true;
         }
@@ -131,7 +142,6 @@ $(function() {
       updateInterval = setInterval(tick, 10);
       $(selector).keydown(keyboard.keyDownListener);
       $(selector).keyup(keyboard.keyUpListener);
-      
     }
     return {
       init: init
