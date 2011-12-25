@@ -26,11 +26,61 @@ $(function() {
       });
     })();
     
+    //Keyboard Manager
+    var keyboard = (function() {
+      var keyStates = {}
+      
+      function keyDownListener(e) {
+        console.log("Got keydown");
+        
+        if (e.keyCode == 39) {        // right
+          keyStates.right = true
+        } else if (e.keyCode == 37) { // left
+          keyStates.left = true
+        } else if (e.keyCode == 38) { // up
+          keyStates.up = true
+        } else if (e.keyCode == 40) { // down
+          keyStates.down = true
+        } else {
+          return true;
+        }
+        return false;
+      }
+      function keyUpListener(e) {
+        if (e.keyCode == 39) {        // right
+          keyStates.right = false
+        } else if (e.keyCode == 37) { // left
+          keyStates.left = false
+        } else if (e.keyCode == 38) { // up
+          keyStates.up = false
+        } else if (e.keyCode == 40) { // down
+          keyStates.down = false
+        } else {
+          return true;
+        }
+        return false;
+      }
+      
+      return {
+         keyDownListener: keyDownListener,
+         keyUpListener: keyUpListener,
+        isPressed: keyStates
+      }
+    })();
+    
+    
+    
     function tick() {
-      ship.theta += 0.01;
+      if (keyboard.isPressed.right) {
+        ship.theta += 0.01;
+      } 
+      if (keyboard.isPressed.left) {
+        ship.theta -= 0.01;
+      }
     }
   
-    (function init() {
+    function init(selector) {
+      
       ship = {
         x: 50,
         y: 50,
@@ -39,6 +89,13 @@ $(function() {
       
       drawInterval = setInterval(redrawCanvas, 1);
       updateInterval = setInterval(tick, 5);
-    })()
-  })()
+      $(selector).keydown(keyboard.keyDownListener);
+      $(selector).keyup(keyboard.keyUpListener);
+      
+    }
+    return {
+      init: init
+    }
+  })();
+  Asteroids.init('body');
 })
