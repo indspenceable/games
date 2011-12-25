@@ -10,7 +10,10 @@ $(function() {
       this.xVelocity = Math.sin(ship.theta);
       this.yVelocity = Math.cos(ship.theta);
     }
-    
+    function Asteroid() {
+      
+    }
+    var asteroids = []
     var ship = new function() {
       this.x = 50;
       this.y = 50;
@@ -82,11 +85,11 @@ $(function() {
       function drawBullet(bullet) {
         console.log('drawbullet');
         context.strokeStyle = "#339";
-        context.moveTo(bullet.x + 1, bullet.y)
-        context.lineTo(bullet.x, bullet.y + 1)
-        context.lineTo(bullet.x - 1, bullet.y)
-        context.lineTo(bullet.x, bullet.y - 1)
-        context.lineTo(bullet.x + 1, bullet.y)
+        context.moveTo(bullet.x + 3, bullet.y)
+        context.lineTo(bullet.x, bullet.y + 3)
+        context.lineTo(bullet.x - 3, bullet.y)
+        context.lineTo(bullet.x, bullet.y - 3)
+        context.lineTo(bullet.x + 3, bullet.y)
         context.stroke();
       }
       function redraw () {
