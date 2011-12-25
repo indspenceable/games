@@ -4,7 +4,15 @@ $(function() {
     var updateInterval;
     // Draw the board.
     var drawInterval;
-    var ship;
+    var ship = {
+      x: 50,
+      y: 50,
+      xVelocity: 0,
+      yVelocity: 0,
+      theta: 0,
+      readyToFire: true
+    }
+    var bullets = []
 
     // graphics manager
     var graphics = (function () {
@@ -19,11 +27,23 @@ $(function() {
         
         context.stroke();
       }
+      function drawBullet(bullet) {
+        context.strokeStyle = "#339";
+        context.moveTo(bullet.x + 1, bullet.y)
+        context.lineTo(bullet.x, bullet.y + 1)
+        context.lineTo(bullet.x - 1, bullet.y)
+        context.lineTo(bullet.x, bullet.y - 1)
+        context.lineTo(bullet.x + 1, bullet.y)
+        context.stroke();
+      }
       function redraw () {
         // clear board
         canvas.width += 0;
         // Draw gamestate
         drawShip(ship);
+        for (var i = 0; i < bullets.length; i ++) {
+          drawBullet(bullets[i]);
+        }
       };
       
       return {
@@ -110,6 +130,20 @@ $(function() {
       }
     }
     
+    function fire(ship) {
+      if (ship.readyToFire) {
+        // TODO make a bullet class, with a constructor that takes a ship.
+        bullets.push({x:ship.x, y:ship.y, xVelocity: Math.sin(ship.theta), yVelocity: Math.cos(ship.theta)})
+        ship.readyToFire = false;
+        setTimeout(function() {
+          ship.readyToFire = true
+        }, 200);
+        setTimeout(function() {
+          bullets.shift();
+        }, 500)
+      }
+    }
+    
     function tick() {
       if (keyboard.keys.left) {
         ship.theta += 0.1;
@@ -117,29 +151,30 @@ $(function() {
       if (keyboard.keys.right) {
         ship.theta -= 0.1;
       }
-      
-      if (keyboard.keys.up) {
-        addVelocity(ship,0.3)
+      if (keyboard.keys.space) {
+        addVelocity(ship,0.15)
+      }
+      if (keyboard.keys.z) {
+        fire(ship);        
       }
       
       ship.x += ship.xVelocity
       ship.y += ship.yVelocity
       
       screenWrap(ship)
-      friction(ship, 0.98);
+      friction(ship, 0.97);
+      
+      
+      for (var i = 0; i < bullets.length; i ++) {
+        var bullet = bullets[i];
+        bullet.x += bullet.xVelocity * 7;
+        bullet.y += bullet.yVelocity * 7;
+      }
     }
   
     function init(selector) {
-      ship = {
-        x: 50,
-        y: 50,
-        xVelocity: 0,
-        yVelocity: 0,
-        theta: 0
-      }
-      
       drawInterval = setInterval(graphics.redraw, 10);
-      updateInterval = setInterval(tick, 10);
+      updateInterval = setInterval(tick, 5);
       $(selector).keydown(keyboard.keyDownListener);
       $(selector).keyup(keyboard.keyUpListener);
     }
