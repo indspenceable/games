@@ -4,33 +4,13 @@ $(function() {
     var updateInterval;
     // Draw the board.
     var drawInterval;
-    function Bullet(ship) {
-      this.x = ship.x;
-      this.y = ship.y;
-      this.xVelocity = Math.sin(ship.theta);
-      this.yVelocity = Math.cos(ship.theta);
-    }
-    function Asteroid() {
-      
-    }
-    var asteroids = []
-    var ship = new function() {
-      this.x = 50;
-      this.y = 50;
-      this.xVelocity = 0;
-      this.yVelocity = 0;
-      this.theta = 0;
-      this.readyToFire = true
-      
-      this.addVelocity = function(amt){
-        this.xVelocity += amt * Math.sin(this.theta)
-        this.yVelocity += amt * Math.cos(this.theta)
-      }
-      this.addFriction = function(coefficient) {
-        this.xVelocity *= coefficient;
-        this.yVelocity *= coefficient;
-      }
     
+    function Moveable() {
+      this.move = function() {
+        this.x += this.xVelocity;
+        this.y += this.yVelocity;
+        this.screenWrap();
+      }
       this.screenWrap = function () {
         if (this.x >= 500) {
           this.x -= 500
@@ -44,6 +24,38 @@ $(function() {
         if (this.y < 0) {
           this.y += 500
         }
+      }
+    }
+    
+    function Bullet(ship) {
+      this.x = ship.x;
+      this.y = ship.y;
+      this.xVelocity = Math.sin(ship.theta)*7;
+      this.yVelocity = Math.cos(ship.theta)*7;
+    }
+    Bullet.prototype = new Moveable();
+    
+    
+    function Asteroid() {
+      
+    }
+    var asteroids = []
+    var ship = new function() {
+      this.x = 50;
+      this.y = 50;
+      this.xVelocity = 0;
+      this.yVelocity = 0;
+      this.theta = 0;
+      this.readyToFire = true
+      
+      
+      this.addVelocity = function(amt){
+        this.xVelocity += amt * Math.sin(this.theta)
+        this.yVelocity += amt * Math.cos(this.theta)
+      }
+      this.addFriction = function(coefficient) {
+        this.xVelocity *= coefficient;
+        this.yVelocity *= coefficient;
       }
 
       this.bullets = [];
@@ -65,6 +77,7 @@ $(function() {
         }
       }
     }
+    ship.__proto__.__proto__ = new Moveable();
 
     // graphics manager
     var graphics = (function () {
@@ -83,7 +96,6 @@ $(function() {
         }
       }
       function drawBullet(bullet) {
-        console.log('drawbullet');
         context.strokeStyle = "#339";
         context.moveTo(bullet.x + 3, bullet.y)
         context.lineTo(bullet.x, bullet.y + 3)
@@ -112,8 +124,6 @@ $(function() {
       
       // TODO so ugly!
       function keyDownListener(e) {
-        console.log("Got keydown");
-        
         if (e.keyCode == 39) {        // right
           keyStates.right = true
         } else if (e.keyCode == 37) { // left
@@ -171,21 +181,21 @@ $(function() {
         ship.fire();        
       }
       
-      ship.x += ship.xVelocity
-      ship.y += ship.yVelocity
+      // ship.x += ship.xVelocity
+      // ship.y += ship.yVelocity
+      ship.move();
       
-      ship.screenWrap()
       ship.addFriction(0.97);
       
       
       for (var i = 0; i < ship.bullets.length; i ++) {
         var bullet = ship.bullets[i];
-        bullet.x += bullet.xVelocity * 7;
-        bullet.y += bullet.yVelocity * 7;
+        bullet.move();
       }
     }
   
     function init(selector) {
+      console.log("Ship is (in init): ", ship)
       drawInterval = setInterval(graphics.redraw, 10);
       updateInterval = setInterval(tick, 5);
       $(selector).keydown(keyboard.keyDownListener);
