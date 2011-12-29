@@ -7,13 +7,13 @@ $(function() {
     
     var windowWidth = 500;
     
-    function Moveable() {
-      this.move = function() {
+    Moveable = {
+      move: function() {
         this.x += this.xVelocity;
         this.y += this.yVelocity;
         this.screenWrap();
-      }
-      this.screenWrap = function () {
+      },
+      screenWrap: function () {
         if (this.x >= 500) {
           this.x -= 500
         }
@@ -35,12 +35,14 @@ $(function() {
       this.xVelocity = Math.sin(ship.theta)*7;
       this.yVelocity = Math.cos(ship.theta)*7;
     }
-    Bullet.prototype = new Moveable();
+    Bullet.prototype = Moveable;
     
     
     function Asteroid() {
       
     }
+    Asteroid.prototype = Moveable;
+    
     var asteroids = []
     var ship = new function() {
       this.x = 50;
@@ -79,7 +81,7 @@ $(function() {
         }
       }
     }
-    ship.__proto__.__proto__ = new Moveable();
+    ship.__proto__.__proto__ = Moveable;
 
     // graphics manager
     var graphics = (function () {
