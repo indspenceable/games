@@ -5,6 +5,8 @@ $(function() {
     // Draw the board.
     var drawInterval;
     
+    var windowWidth = 500;
+    
     function Moveable() {
       this.move = function() {
         this.x += this.xVelocity;
@@ -83,17 +85,13 @@ $(function() {
     var graphics = (function () {
       var canvas = document.getElementById("asteroids");
       var context = canvas.getContext("2d");
-      function drawShip(ship) {
+      
+      function drawShip(x,y,theta) {
         context.strokeStyle = "#000";
-        context.moveTo(ship.x + 10 * Math.sin(ship.theta),               ship.y + 10 * Math.cos(ship.theta));
-        context.lineTo(ship.x +  5 * Math.sin(ship.theta + 2*Math.PI/3), ship.y +  5 * Math.cos(ship.theta + 2*Math.PI/3));
-        context.lineTo(ship.x +  5 * Math.sin(ship.theta + 4*Math.PI/3), ship.y +  5 * Math.cos(ship.theta + 4*Math.PI/3));
-        context.lineTo(ship.x + 10 * Math.sin(ship.theta),               ship.y + 10 * Math.cos(ship.theta));
-        
-        context.stroke();
-        for (var i = 0; i < ship.bullets.length; i ++) {
-          drawBullet(ship.bullets[i]);
-        }
+        context.moveTo(x + 10 * Math.sin(theta),               y + 10 * Math.cos(theta));
+        context.lineTo(x +  5 * Math.sin(theta + 2*Math.PI/3), y +  5 * Math.cos(theta + 2*Math.PI/3));
+        context.lineTo(x +  5 * Math.sin(theta + 4*Math.PI/3), y +  5 * Math.cos(theta + 4*Math.PI/3));
+        context.lineTo(x + 10 * Math.sin(theta),               y + 10 * Math.cos(theta));
       }
       function drawBullet(bullet) {
         context.strokeStyle = "#339";
@@ -102,13 +100,24 @@ $(function() {
         context.lineTo(bullet.x - 3, bullet.y)
         context.lineTo(bullet.x, bullet.y - 3)
         context.lineTo(bullet.x + 3, bullet.y)
-        context.stroke();
       }
       function redraw () {
         // clear board
         canvas.width += 0;
         // Draw gamestate
-        drawShip(ship);
+        
+        context.beginPath();
+        for (var a = -1; a <= 1; a++) {
+          for (var b = -1; b <= 1; b++) {
+            drawShip(ship.x + (a*windowWidth), ship.y + (b*windowWidth), ship.theta);
+          }
+        }
+        context.stroke();
+        context.beginPath();
+        for (var i = 0; i < ship.bullets.length; i ++) {
+          drawBullet(ship.bullets[i]);
+        }
+        context.stroke();
         
       };
       
@@ -195,7 +204,6 @@ $(function() {
     }
   
     function init(selector) {
-      console.log("Ship is (in init): ", ship)
       drawInterval = setInterval(graphics.redraw, 10);
       updateInterval = setInterval(tick, 5);
       $(selector).keydown(keyboard.keyDownListener);
