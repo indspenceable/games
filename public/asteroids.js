@@ -23,6 +23,7 @@ $(function() {
       this.y = ship.y;
       this.xVelocity = Math.sin(ship.theta)*7;
       this.yVelocity = Math.cos(ship.theta)*7;
+      
     }
     Bullet.prototype = Moveable;
     
@@ -70,7 +71,7 @@ $(function() {
           setTimeout(function() {
             $ship.readyToFire = true
           }, 200);
-          setTimeout(function() {
+          bullet.timeout = setTimeout(function() {
             $ship.bullets.shift();
            }, 500)
         }
@@ -225,7 +226,22 @@ $(function() {
       }
       
       for (var i = 0; i < asteroids.length; i++) {
-        var a1 = asteroids[i]
+        var a1 = asteroids[i];
+        var collided = false;
+        for (var j = 0; j < ship.bullets.length; j++) {
+          var b = ship.bullets[j];
+          if (((a1.x - b.x)*(a1.x - b.x) + (a1.y - b.y)*(a1.y - b.y)) < (a1.size * a1.size)) {
+            console.log("BULLET ", j, "COLLIDED WITH ASTEROID ", i, "out of bullets: ", ship.bullets.length, "and asteroids", asteroids.length)
+            collided = true;
+            ship.bullets.splice(j,1);
+            clearTimeout(b.timeout);
+            break;
+          }
+        }
+        if (collided == true) {
+          asteroids.splice(i,1);
+          continue;
+        }
         for (var j = i+1; j < asteroids.length; j++) {
           var a2 = asteroids[j]
           // If these two are colliding, set collision on both to be TRUE.
