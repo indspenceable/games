@@ -240,7 +240,7 @@ $(function() {
           var a2 = asteroids[j]
           // If these two are colliding, set collision on both to be TRUE.
           // Rather than taking sqrts, I'm squaring the other side of the equation. Should be a little faster.
-          if (((a1.x - a2.x)*(a1.x - a2.x) + (a1.y - a2.y)*(a1.y - a2.y)) < (a1.size + a2.size)*(a1.size+a2.size)*2) {
+          if (((a1.x - a2.x)*(a1.x - a2.x) + (a1.y - a2.y)*(a1.y - a2.y)) < (a1.size + a2.size)*(a1.size+a2.size)) {
             a1.collision = true
             a2.collision = true
           }
