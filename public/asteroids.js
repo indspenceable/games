@@ -1,9 +1,8 @@
 $(function() {
   var Asteroids = (function() {
     // the update function; gets called every tick.
+    // Draws the board at the end.
     var updateInterval;
-    // Draw the board.
-    var drawInterval;
     
     var windowWidth = 500;
     
@@ -38,8 +37,14 @@ $(function() {
     Bullet.prototype = Moveable;
     
     
-    function Asteroid() {
-      
+    function Asteroid(x,y,size) {
+      this.x = x;
+      this.y = y;
+      this.size = size;
+      this.collision = false;
+      this.theta = Math.random()*Math.PI
+      this.xVelocity = (Math.random()*2)-1;
+      this.yVelocity = (Math.random()*2)-1;
     }
     Asteroid.prototype = Moveable;
     
@@ -103,6 +108,12 @@ $(function() {
         context.lineTo(bullet.x, bullet.y - 3)
         context.lineTo(bullet.x + 3, bullet.y)
       }
+      function drawAsteroidAt(x,y,theta,size) {
+        context.moveTo(x-size,y-size);
+        context.lineTo(x+size,y+size);
+        context.moveTo(x+size,y-size);
+        context.lineTo(x-size,y+size);
+      }
       function redraw () {
         // clear board
         canvas.width += 0;
@@ -120,6 +131,18 @@ $(function() {
           drawBullet(ship.bullets[i]);
         }
         context.stroke();
+        for (var i = 0; i < asteroids.length; i++) {
+          context.beginPath();
+          
+          if (asteroids[i].collision == true) {
+            context.strokeStyle = "#f00";
+          } else {
+            context.strokeStyle = "#0ff";
+          }
+          drawAsteroidAt(asteroids[i].x, asteroids[i].y, asteroids[i].theta, asteroids[i].size);
+          context.stroke();
+          
+        }
         
       };
       
@@ -185,8 +208,11 @@ $(function() {
       if (keyboard.keys.right) {
         ship.theta -= 0.1;
       }
-      if (keyboard.keys.space) {
+      if (keyboard.keys.up) {
         ship.addVelocity(0.15)
+      }
+      if (keyboard.keys.space) {
+        //asteroids.push(new Asteroid(Math.random()*500, Math.random()*500));
       }
       if (keyboard.keys.z) {
         ship.fire();        
@@ -203,13 +229,33 @@ $(function() {
         var bullet = ship.bullets[i];
         bullet.move();
       }
+      for (var i = 0; i < asteroids.length; i++) {
+        asteroids[i].move();
+        asteroids[i].collision = false;
+      }
+      
+      for (var i = 0; i < asteroids.length; i++) {
+        var a1 = asteroids[i]
+        for (var j = i+1; j < asteroids.length; j++) {
+          var a2 = asteroids[j]
+          // If these two are colliding, set collision on both to be TRUE.
+          // Rather than taking sqrts, I'm squaring the other side of the equation. Should be a little faster.
+          if (((a1.x - a2.x)*(a1.x - a2.x) + (a1.y - a2.y)*(a1.y - a2.y)) < (a1.size + a2.size)*(a1.size+a2.size)*2) {
+            a1.collision = true
+            a2.collision = true
+          }
+        }
+      }
+      graphics.redraw();
     }
   
     function init(selector) {
-      drawInterval = setInterval(graphics.redraw, 10);
-      updateInterval = setInterval(tick, 5);
+      updateInterval = setInterval(tick, 10);
       $(selector).keydown(keyboard.keyDownListener);
       $(selector).keyup(keyboard.keyUpListener);
+      for(var i = 0; i < 100; i++) {
+        asteroids.push(new Asteroid(Math.random()*500, Math.random()*500, 3+(Math.random()*5)));
+      }
     }
     return {
       init: init
