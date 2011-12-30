@@ -13,8 +13,8 @@ $(function() {
         this.screenWrap();
       },
       screenWrap: function () {
-        this.x = this.x % 500
-        this.y = this.y % 500
+        this.x = (this.x+500) % 500
+        this.y = (this.y+500) % 500
       }
     }
     
