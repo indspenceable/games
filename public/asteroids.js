@@ -13,18 +13,8 @@ $(function() {
         this.screenWrap();
       },
       screenWrap: function () {
-        if (this.x >= 500) {
-          this.x -= 500
-        }
-        if (this.y >= 500) {
-          this.y -= 500
-        }
-        if (this.x < 0) {
-          this.x += 500
-        }
-        if (this.y < 0) {
-          this.y += 500
-        }
+        this.x = this.x % 500
+        this.y = this.y % 500
       }
     }
     
