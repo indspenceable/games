@@ -2,5 +2,5 @@ require 'rubygems'
 require 'sinatra'
 
 get '/' do
-  File.read 'public/games.html'
+  File.read 'public/asteroids.html'
 end
