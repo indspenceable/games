@@ -4,10 +4,14 @@ html
     title The page
     script(src="/nowjs/now.js")
     script(type="text/javascript")
+      now.name = prompt("What's your name?", "");
       now.ready(function(){
         // "Hello World!" will print on server
-        now.logStuff("Hello World!");
+        now.distributeMessage("Hello, world.");
       });
+      now.receiveMessage = function(name, message){
+        console.log(name + " says " + message + "(" + (new Date()).getTime() + ")")
+      }
   body
     h1 Welcome to the page!
     p Isn't it fuckin sweet?

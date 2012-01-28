@@ -34,6 +34,6 @@ server.listen(8080);
 var nowjs = require("now");
 var everyone = nowjs.initialize(server);
 
-everyone.now.logStuff = function(msg) {
-  console.log(msg);
-}
+everyone.now.distributeMessage = function(message){
+  everyone.now.receiveMessage(this.now.name, message);
+};
