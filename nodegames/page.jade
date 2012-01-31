@@ -2,16 +2,8 @@
 html
   head
     title The page
-    script(src="/nowjs/now.js")
-    script(type="text/javascript")
-      now.name = prompt("What's your name?", "");
-      now.ready(function(){
-        // "Hello World!" will print on server
-        now.distributeMessage("Hello, world.");
-      });
-      now.receiveMessage = function(name, message){
-        console.log(name + " says " + message + "(" + (new Date()).getTime() + ")")
-      }
+    script(src="/socket.io/socket.io.js")
+    script(src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js")
+    script(src='/game.js')
   body
-    h1 Welcome to the page!
-    p Isn't it fuckin sweet?
+    canvas(id="canvas", width="500px", height="500px", style="border: 1px black solid")
